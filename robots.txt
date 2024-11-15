@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://anime.adgstudios.co.za/sitemap.xml

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    {% endblock %}
+
+    {% block seo %}
+    {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>AnimeFlix | Library</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Preload and Defer Stylesheets -->
+    <link rel="preload" href="./static/aos.css" as="style">
+    <link rel="preload" href="./static/style.css" as="style">
+
+    <link href="./static/aos.css" rel="stylesheet">
+    <link href="./static/style.css" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="./static/favicon-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap">
+    <script src="./static/alpinejs.min.js" defer></script>
+
+    <!-- Include Axios for HTTP requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+
+    <!-- Main JavaScript -->
+    <script src="./static/main.js" defer></script>
+
+    <style>
+        /* Additional CSS for Flip Cards and Grid Layout */
+
+        /* Anime Cards Grid */
+        .anime-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        /* Flip Card Styles */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            max-width: 300px;
+            height: 450px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back Faces */
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .flip-card-front {
+            color: black;
+        }
+
+        .flip-card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Glossy Shine Effect */
+        .flip-card-front::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 80%);
+            transform: skewX(-25deg);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .flip-card-front:hover::before {
+            left: 100%;
+        }
+
+        .flip-card-back {
+            background-color: #f8f8f8;
+            color: black;
+            transform: rotateY(180deg);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .flip-card-back .anime-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: left;
+        }
+
+        .flip-card-back .anime-details {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .flip-card-back .synopsis {
+            font-size: 0.9em;
+            color: #333;
+            overflow: auto;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .flip-card-back .view-details {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .flip-card-back .view-details a {
+            text-decoration: none;
+            color: #1e90ff;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .flip-card-back .view-details a:hover {
+            color: #3742fa;
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        /* Ensure the entire card is clickable */
+        .flip-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            text-decoration: none;
+            color: inherit;
+            /* Ensure link doesn't block hover on front face */
+            pointer-events: none;
+        }
+
+        .flip-card:hover .flip-card-link {
+            pointer-events: auto;
+        }
+
+        /* Prevent link from interfering with flip */
+        .flip-card-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 300px) {
+            .flip-card {
+                max-width: 90%;
+                height: auto;
+            }
+
+            .flip-card-front img {
+                height: auto;
+            }
+
+            /* Adjust grid to single column on small screens */
+            .anime-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Optional: Enhance Hover Effect */
+        .flip-card:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s;
+        }
+
+        /* Improve CLS by setting min-height for content areas */
+        .cr8dw,
+        .cnna9,
+        .cc7gh,
+        .c6df8,
+        .c3d7q {
+            min-height: 50px;
+        }
+
+        /* Reserve space for images and videos */
+        img,
+        video {
+            display: block;
+        }
+
+        /* Skeleton Styles */
+        .flip-card.skeleton {
+            animation: pulse 1.5s infinite;
+            background-color: #f0f0f0;
+        }
+
+        .flip-card.skeleton .flip-card-front,
+        .flip-card.skeleton .flip-card-back {
+            background-color: #f0f0f0;
+        }
+
+        .skeleton-image {
+            width: 100%;
+            height: 100%;
+            background-color: #e0e0e0;
+        }
+
+        .skeleton-text {
+            height: 20px;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .skeleton-text.title {
+            width: 60%;
+        }
+
+        .skeleton-text.details {
+            width: 40%;
+        }
+
+        .skeleton-text.synopsis {
+            width: 80%;
+            height: 60px;
+        }
+
+        .skeleton-button {
+            width: 50%;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #f0f0f0;
+            }
+
+            50% {
+                background-color: #e0e0e0;
+            }
+
+            100% {
+                background-color: #f0f0f0;
+            }
+        }
+    </style>
+</head>
+
+<body class="c4f4x cnihn cs2bp c55gg czrq6">
+    <!-- Site header -->
+    {% include 'header.html' %}
+
+    <!-- Page content -->
+
+    <main class="cz17m cp02i container mx-auto px-4">
+
+        <!-- Library Section -->
+        <section class="library-section">
+
+            <div class="ca5ue cwmqr ch67j" aria-hidden="true">
+                <canvas data-particle-animation="" width="2304" height="1964"
+                    style="width: 1152px; height: 982px;"></canvas>
+            </div>
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-4 text-white">Anime Library</h1>
+                <p class="text-white">Browse and search through our extensive collection of anime.</p>
+            </div>
+
+            <!-- Search and Filter Controls -->
+            <form id="search-form" class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Search Query -->
+                    <div>
+                        <label for="query" class="block text-sm font-medium text-black">Search</label>
+                        <input type="text" id="query" name="q" placeholder="Enter anime name"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                    </div>
+
+                    <!-- Type -->
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-black">Type</label>
+                        <select id="type" name="type"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <option value="">Any</option>
+                            <option value="tv">TV</option>
+                            <option value="movie">Movie</option>
+                            <option value="ova">OVA</option>
+                            <option value="special">Special</option>
+                            <option value="ona">ONA</option>
+                            <option value="music">Music</option>
+                            <option value="cm">CM</option>
+                            <option value="pv">PV</option>
+                            <option value="tv_special">TV Special</option>
+                        </select>
+                    </div>
+
+                    <!-- Score Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-black">Score Range</label>
+                        <div class="flex space-x-2">
+                            <input type="number" name="min_score" min="0" max="10" step="0.1" placeholder="Min"
+                                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                            <input type="number" name="max_score" min="0" max="10" step="0.1" placeholder="Max"
+                                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-black">Status</label>
+                        <select id="status" name="status"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <option value="">Any</option>
+                            <option value="airing">Airing</option>
+                            <option value="complete">Complete</option>
+                            <option value="upcoming">Upcoming</option>
+                        </select>
+                    </div>
+
+                    <!-- Rating -->
+                    <div>
+                        <label for="rating" class="block text-sm font-medium text-black">Rating</label>
+                        <select id="rating" name="rating"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <option value="">Any</option>
+                            <option value="g">G - All Ages</option>
+                            <option value="pg">PG - Children</option>
+                            <option value="pg13">PG-13 - Teens 13 or older</option>
+                            <option value="r17">R - 17+ (violence & profanity)</option>
+                            <option value="r">R+ - Mild Nudity</option>
+                            <option value="rx">Rx - Hentai</option>
+                        </select>
+                    </div>
+
+                    <!-- Genres -->
+                    <div>
+                        <label for="genres" class="block text-sm font-medium text-black">Genres</label>
+                        <input type="text" id="genres" name="genres" placeholder="e.g., 1,2,3"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                        <p class="mt-1 text-sm text-gray-500">Enter genre IDs separated by commas.</p>
+                    </div>
+
+                    <!-- Exclude Genres -->
+                    <div>
+                        <label for="genres_exclude" class="block text-sm font-medium text-black">Exclude Genres</label>
+                        <input type="text" id="genres_exclude" name="genres_exclude" placeholder="e.g., 4,5,6"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                        <p class="mt-1 text-sm text-gray-500">Enter genre IDs to exclude, separated by commas.</p>
+                    </div>
+
+                    <!-- Producers -->
+                    <div>
+                        <label for="producers" class="block text-sm font-medium text-black">Producers</label>
+                        <input type="text" id="producers" name="producers" placeholder="e.g., 1,2,3"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black placeholder:text-black">
+                        <p class="mt-1 text-sm text-gray-500">Enter producer IDs separated by commas.</p>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-black">Release Date Range</label>
+                        <div class="flex space-x-2">
+                            <input type="date" name="start_date"
+                                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <input type="date" name="end_date"
+                                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                        </div>
+                    </div>
+
+                    <!-- Sort By -->
+                    <div>
+                        <label for="order_by" class="block text-sm font-medium text-black">Sort By</label>
+                        <select id="order_by" name="order_by"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <option value="mal_id">ID</option>
+                            <option value="title">Title</option>
+                            <option value="start_date">Start Date</option>
+                            <option value="end_date">End Date</option>
+                            <option value="episodes">Episodes</option>
+                            <option value="score">Score</option>
+                            <option value="scored_by">Scored By</option>
+                            <option value="rank">Rank</option>
+                            <option value="popularity">Popularity</option>
+                            <option value="members">Members</option>
+                            <option value="favorites">Favorites</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Direction -->
+                    <div>
+                        <label for="sort" class="block text-sm font-medium text-black">Sort Direction</label>
+                        <select id="sort" name="sort"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-black">
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                        </select>
+                    </div>
+
+                    <!-- SFW Filter -->
+                    <div class="flex items-center">
+                        <input id="sfw" name="sfw" type="checkbox"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                        <label for="sfw" class="ml-2 block text-sm text-black">
+                            Safe For Work (SFW)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mt-6 flex justify-end">
+                    <button type="submit"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Search
+                    </button>
+                </div>
+            </form>
+
+            <!-- Anime Results -->
+            <div class="anime-cards-grid" id="anime-results">
+                <!-- Skeleton Cards (Placeholders) -->
+                <!-- These will be dynamically generated via JavaScript -->
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-library" class="loading-indicator">Loading anime...</div>
+
+            <!-- No Results Message -->
+            <div id="no-results" class="loading-indicator hidden">No anime found. Try adjusting your search criteria.</div>
+        </section>
+
+    </main>
+
+    <!-- Site Footer -->
+    {% include 'footer.html' %}
+
+    <!-- JavaScript for Library Page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchForm = document.getElementById('search-form');
+            const animeResults = document.getElementById('anime-results');
+            const loadingIndicator = document.getElementById('loading-library');
+            const noResults = document.getElementById('no-results');
+
+            // Function to create skeleton loaders
+            function createSkeletons(count) {
+                animeResults.innerHTML = ''; // Clear previous results
+                for (let i = 0; i < count; i++) {
+                    const skeletonCard = document.createElement('div');
+                    skeletonCard.className = 'flip-card skeleton';
+                    skeletonCard.innerHTML = `
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="skeleton-image"></div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="skeleton-text title"></div>
+                                <div class="skeleton-text details"></div>
+                                <div class="skeleton-text synopsis"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    `;
+                    animeResults.appendChild(skeletonCard);
+                }
+            }
+
+            // Function to render anime cards
+            function renderAnimeCards(animeList) {
+                animeResults.innerHTML = ''; // Clear skeletons or previous results
+
+                if (animeList.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                } else {
+                    noResults.classList.add('hidden');
+                }
+
+                animeList.forEach(anime => {
+                    const card = document.createElement('div');
+                    card.className = 'flip-card';
+
+                    // Construct the URL to redirect to /anime/<id>
+                    const animeUrl = `/anime/${anime.mal_id}`; // Assuming 'mal_id' is the unique identifier
+
+                    card.innerHTML = `
+                        <a href="${animeUrl}" class="flip-card-link" aria-label="View details for ${sanitizeHTML(anime.title)}"></a>
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="${anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}" alt="${sanitizeHTML(anime.title)}" width="300" height="450" loading="lazy">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="anime-title">${sanitizeHTML(anime.title)}</div>
+                                <div class="anime-details">Score: ${anime.score || 'N/A'} | Episodes: ${anime.episodes || 'N/A'}</div>
+                                <div class="synopsis">${truncateSynopsis(anime.synopsis, 150)}</div>
+                                <div class="view-details">
+                                    <a href="${animeUrl}" target="_blank" rel="noopener noreferrer">View Details &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    animeResults.appendChild(card);
+                });
+            }
+
+            // Function to truncate synopsis
+            function truncateSynopsis(synopsis, maxLength) {
+                if (!synopsis) return 'No synopsis available.';
+                return synopsis.length > maxLength ? synopsis.substring(0, maxLength) + '...' : synopsis;
+            }
+
+            // Function to sanitize HTML to prevent XSS attacks
+            function sanitizeHTML(str) {
+                if (!str) return '';
+                return str.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Handle form submission
+            searchForm.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Collect form data
+                const formData = new FormData(searchForm);
+                const params = new URLSearchParams();
+
+                // Iterate over formData and append to params
+                for (const [key, value] of formData.entries()) {
+                    if (value) { // Only include if value is not empty
+                        if (key === 'genres' || key === 'genres_exclude' || key === 'producers') {
+                            params.append(key, value.replace(/\s+/g, '')); // Remove spaces
+                        } else if (key === 'sfw') {
+                            if (formData.get('sfw') === 'on') {
+                                params.append(key, 'true');
+                            }
+                        } else {
+                            params.append(key, value);
+                        }
+                    }
+                }
+
+                // Show skeleton loaders
+                createSkeletons(6); // Adjust the number based on expected results
+
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                noResults.classList.add('hidden');
+
+                // Make API request
+                axios.get(`https://api.jikan.moe/v4/anime`, {
+                        params: params
+                    })
+                    .then(response => {
+                        const animeList = response.data.data;
+                        renderAnimeCards(animeList);
+                        loadingIndicator.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching anime:', error);
+                        loadingIndicator.style.display = 'none';
+                        noResults.textContent = 'An error occurred while fetching anime. Please try again later.';
+                        noResults.classList.remove('hidden');
+                    });
+            });
+
+            // Function to fetch and display recent anime on page load
+            function fetchRecentAnime() {
+                // Show skeleton loaders
+                createSkeletons(6); // Adjust the number based on expected results
+
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                noResults.classList.add('hidden');
+
+                // Define parameters to fetch recent anime
+                const params = new URLSearchParams({
+                    order_by: 'start_date',
+                    sort: 'desc',
+                    limit: 20, // Adjust as needed
+                    sfw: 'true' // Default to SFW; adjust as needed
+                });
+
+                // Make API request
+                axios.get(`https://api.jikan.moe/v4/anime`, {
+                        params: params
+                    })
+                    .then(response => {
+                        const animeList = response.data.data;
+                        renderAnimeCards(animeList);
+                        loadingIndicator.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching recent anime:', error);
+                        loadingIndicator.style.display = 'none';
+                        noResults.textContent = 'Failed to load recent anime. Please try again later.';
+                        noResults.classList.remove('hidden');
+                    });
+            }
+
+            // Fetch recent anime on page load
+            fetchRecentAnime();
+        });
+    </script>
+</body>
+
+</html>

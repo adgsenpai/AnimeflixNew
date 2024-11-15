@@ -1,0 +1,152 @@
+<!-- header.html -->
+<header class="ca5ue ca0gw cverl">
+    <div class="co3q6 csm51 csya4 ccyhi">
+        <div class="cm7bi c2sao c4jjw c4agq cm0fl flex justify-between items-center">
+
+            <!-- Site branding -->
+            <div class="ci0vw flex items-center">
+                <!-- Logo -->
+                <a class="cwban" href="/" aria-label="Animeflix">
+                    <img class="cbdyn" src="./static/favicon-32x32.png" width="32" height="32" alt="Animeflix">
+                </a>
+            </div>
+
+            <!-- Desktop navigation -->
+            <nav class="cp37h cjnbw ch9bk">
+
+                <!-- Desktop menu links -->
+                <ul class="csqqr c2sao cbsu6 c4agq c9wgl">
+                    <li>
+                        <a class="c0z2s cit3o cx3jz ccqx1 cgi3a cqxsj ch2qt cvdvu ciz32 hover:text-blue-500 transition"
+                            href="https://anime.adgstudios.co.za/library">Anime</a>
+                    </li>
+                    <li>
+                        <a class="c0z2s cit3o cx3jz ccqx1 cgi3a cqxsj ch2qt cvdvu ciz32 hover:text-blue-500 transition"
+                            href="https://manga.adgstudios.co.za">Manga</a>
+                    </li>
+
+                    <li>
+                        <a class="c0z2s cit3o cx3jz ccqx1 cgi3a cqxsj ch2qt cvdvu ciz32 hover:text-blue-500 transition"
+                            href="https://apps.adgstudios.co.za/">App Store</a>
+                    </li>
+
+                    <li>
+                        <a class="c0z2s cit3o cx3jz ccqx1 ccgi3a cqxsj ch2qt cvdvu ciz32 hover:text-blue-500 transition"
+                            href="https://www.bonfire.com/store/animeflix/">Store</a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+            <!-- Search and Sign In Links -->
+            <div class="flex items-center space-x-4">
+
+    
+                <!-- Sign in links -->
+                <ul class="c2sao cq21c ci0vw c4agq flex space-x-4">
+                    <li class="cci1o" id="search-button" style="cursor: pointer;">
+                        <a class="c3d7q c272e cegg3 c8isz c0z2s c1mpe ccqfq cit3o cx3jz cgi3a cqxsj c27r3 cfl4k ca0gw cq2yg hover:text-blue-500 transition"
+                            >
+                            <span class="c2sao cwban c27r3">
+                                Search for Anime
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+                                </svg>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="cci1o" id="sign-in-button" style="cursor: pointer;">
+                        <a class="c3d7q c272e cegg3 c8isz c0z2s c1mpe ccqfq cit3o cx3jz cgi3a cqxsj c27r3 cfl4k ca0gw cq2yg hover:text-blue-500 transition" 
+                            >
+                            <span class="c2sao cwban c27r3">
+                                Sign in/Sign up <span class="c9pof c406y cxxyq c3fbv cx3jz cgi3a cqzh1">-&gt;</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+<script>
+    // put listener state not available yet state we are porting features from old website to this new version 
+    document.getElementById('sign-in-button').addEventListener('click', () => {
+        Swal.fire({
+            title: 'Sign in/Sign up',
+            html: `
+                <p>Sign in to your account or sign up for a new account.</p>
+                <p>Feature not available yet. We are porting features from the old website to this new version.</p>
+
+            `,
+            showCloseButton: true,
+            showCancelButton: false,
+            showConfirmButton: false,
+        });
+    });
+</script>
+            </div>
+
+            <!-- Mobile menu -->
+            <div class="c2sao c89zz cwap3 c4agq" x-data="{ expanded: false }">
+
+                <!-- Hamburger button -->
+                <button class="c381v" :class="{ 'active': expanded }" @click.stop="expanded = !expanded"
+                    aria-controls="mobile-nav" :aria-expanded="expanded" aria-expanded="false">
+                    <span class="cmmna">Menu</span>
+                    <svg class="c0z2s cit3o cm1cr cx3jz cgi3a cqxsj csq2q c7vsq" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <rect y="2" width="20" height="2" rx="1"></rect>
+                        <rect y="9" width="20" height="2" rx="1"></rect>
+                        <rect y="16" width="20" height="2" rx="1"></rect>
+                    </svg>
+                </button>
+
+                <!-- Mobile navigation -->
+                <nav id="mobile-nav" class="cbvce cml7t cpjek cgi3a ca5ue chez1 csm51 c1tcw ca0gw ccxsu ccyhi"
+                    x-ref="mobileNav"
+                    :style="expanded ? 'max-height: ' + $refs.mobileNav.scrollHeight + 'px; opacity: 1' : 'max-height: 0; opacity: .8'"
+                    @click.outside="expanded = false" @keydown.escape.window="expanded = false"
+                    style="max-height: 0; opacity: .8">
+                    <ul class="c3d7q cy8oh c8nst coow7 cn544 ccyhi">
+                        <li>
+                            <a class="c0z2s cit3o ccqx1 coow7 cvdvu c4agq hover:text-blue-500 transition block"
+                                href="https://anime.adgstudios.co.za/library">Anime</a>
+                        </li>
+                        <li>
+                            <a class="c0z2s cit3o ccqx1 coow7 cvdvu c4agq hover:text-blue-500 transition block"
+                                href="https://manga.adgstudios.co.za">Manga</a>
+                        </li>
+                        <li>
+                            <a class="c0z2s cit3o ccqx1 coow7 cvdvu c4agq hover:text-blue-500 transition block"
+                                href="https://apps.adgstudios.co.za/">App Store</a>
+                        </li>
+                        <li>
+                            <a class="c0z2s cit3o ccqx1 coow7 cvdvu c4agq hover:text-blue-500 transition block"
+                                href="https://www.bonfire.com/store/animeflix/">Store</a>
+                        </li>
+                        <li>
+                            <a class="c0z2s cit3o ccqx1 coow7 cvdvu c4agq hover:text-blue-500 transition block"
+                                href="/articles.html">Articles</a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- SweetAlert2 Search Script -->
+<!-- Include SweetAlert2 via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchButton = document.getElementById('search-button');
+
+        searchButton.addEventListener('click', function () {
+            // redirect to /library
+            window.location.href = '/library';
+        });
+    });
+</script>

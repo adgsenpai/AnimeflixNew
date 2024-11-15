@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="cmmz3">
+
+<head>
+    {% block head %}
+    {% endblock %}
+
+    {% block seo %}
+    {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>AnimeFlix | Watch Free Anime Online in HD</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+
+    <!-- Preload and Defer Stylesheets -->
+    <link rel="preload" href="./static/aos.css" as="style">
+    <link rel="preload" href="./static/style.css" as="style">
+
+    <link href="./static/aos.css" rel="stylesheet">
+    <link href="./static/style.css" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="./static/favicon-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap">
+    <script src="./static/alpinejs.min.js" defer></script>
+
+    <!-- Include Axios for HTTP requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+
+    <!-- Main JavaScript -->
+    <script src="./static/main.js" defer></script>
+
+    <style>
+        /* Additional CSS for Flip Cards and Grid Layout */
+
+        /* Anime Cards Grid */
+        .anime-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        /* Flip Card Styles */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            max-width: 300px;
+            height: 450px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back Faces */
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .flip-card-front {
+            color: black;
+        }
+
+        .flip-card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Glossy Shine Effect */
+        .flip-card-front::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 80%);
+            transform: skewX(-25deg);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .flip-card-front:hover::before {
+            left: 100%;
+        }
+
+        .flip-card-back {
+            background-color: #f8f8f8;
+            color: black;
+            transform: rotateY(180deg);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .flip-card-back .anime-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: left;
+        }
+
+        .flip-card-back .anime-details {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .flip-card-back .synopsis {
+            font-size: 0.9em;
+            color: #333;
+            overflow: auto;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .flip-card-back .view-details {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .flip-card-back .view-details a {
+            text-decoration: none;
+            color: #1e90ff;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .flip-card-back .view-details a:hover {
+            color: #3742fa;
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        /* Ensure the entire card is clickable */
+        .flip-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            text-decoration: none;
+            color: inherit;
+            /* Ensure link doesn't block hover on front face */
+            pointer-events: none;
+        }
+
+        .flip-card:hover .flip-card-link {
+            pointer-events: auto;
+        }
+
+        /* Prevent link from interfering with flip */
+        .flip-card-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 300px) {
+            .flip-card {
+                max-width: 90%;
+                height: auto;
+            }
+
+            .flip-card-front img {
+                height: auto;
+            }
+        }
+
+        /* Optional: Enhance Hover Effect */
+        .flip-card:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s;
+        }
+
+        /* Improve CLS by setting min-height for content areas */
+        .cr8dw, .cnna9, .cc7gh, .c6df8, .c3d7q {
+            min-height: 50px; /* Adjust as needed */
+        }
+
+        /* Reserve space for images and videos */
+        img, video {
+            display: block;
+        }
+
+        /* Skeleton Styles */
+        .flip-card.skeleton {
+            animation: pulse 1.5s infinite;
+            background-color: #f0f0f0;
+        }
+
+        .flip-card.skeleton .flip-card-front,
+        .flip-card.skeleton .flip-card-back {
+            background-color: #f0f0f0;
+        }
+
+        .skeleton-image {
+            width: 100%;
+            height: 100%;
+            background-color: #e0e0e0;
+        }
+
+        .skeleton-text {
+            height: 20px;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .skeleton-text.title {
+            width: 60%;
+        }
+
+        .skeleton-text.details {
+            width: 40%;
+        }
+
+        .skeleton-text.synopsis {
+            width: 80%;
+            height: 60px;
+        }
+
+        .skeleton-button {
+            width: 50%;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #f0f0f0;
+            }
+            50% {
+                background-color: #e0e0e0;
+            }
+            100% {
+                background-color: #f0f0f0;
+            }
+        }
+    </style>
+</head>
+
+<body class="c4f4x cnihn cs2bp c55gg czrq6">
+
+    <!-- Site header -->
+    {% include 'header.html' %}
+
+    <!-- Page content -->
+    <main class="cz17m cp02i">
+
+        <!-- Hero content -->
+        <div class="cw9su c80wd csya4">
+            <div class="cr8dw">
+                <div class="cnna9 c1mpe ccqfq ctaxy cwban c27r3">
+                    <a class="cfhua c272e cpm5o c8isz c0z2s c1mpe ccqfq cit3o cx3jz cgi3a cqxsj c27r3 coqcu cfl4k c1xwr cq2yg"
+                        href="/library">
+                        <span class="c2sao cwban c27r3">
+                            View Library <span class="c9pof c406y cxxyq c3fbv cx3jz cgi3a cqzh1">-&gt;</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="cc7gh ccqrz cx8zw c6df8 cfcmr ctwez cvc1j cbmj0">Watch Anime Online</div>
+            <p class="cit3o cbgr1 cpvtt">Watch the latest anime episodes and movies from Japan in high
+                quality. We offer sub/dub and quality anime streams for free.</p>
+            <!-- center -->
+
+            <br>
+            <br>
+            <span class="c2sao cwban c27r3">
+                <!-- ezgif-6-ef156ebc88.webm hide video controls -->
+                <video width="800" height="450" autoplay loop muted playsinline>
+                    <source src="./static/ezgif-6-ef156ebc88.webm" type="video/webm">
+                    Your browser does not support the video tag.
+                </video>
+            </span>
+
+        </div>
+
+        <div class="ca5ue cwmqr ch67j" aria-hidden="true">
+            <canvas data-particle-animation="" width="2304" height="1964"
+                style="width: 1152px; height: 982px;"></canvas>
+        </div>
+
+        <br>
+        <br>
+        <!-- Airing Anime Section -->
+        <section class="airing-section">
+            <div class="co3q6 c27r3 csm51 csya4 ccyhi">
+                <!-- Section Header -->
+                <div class="section-header">
+                    <h2 class="cc7gh ccqrz cx8zw c6df8 cfcmr ctwez cvc1j c4zau">Currently Airing Anime</h2>
+                    <p class="cmuyi cbgr1">Discover the latest anime episodes airing now.</p>
+                </div>
+
+                <!-- Anime Cards Grid with Skeleton Loaders -->
+                <div class="anime-cards-grid" id="airing-anime">
+                    <!-- Skeleton Cards (Placeholders) -->
+                    <div class="flip-card skeleton">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="skeleton-image"></div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="skeleton-text title"></div>
+                                <div class="skeleton-text details"></div>
+                                <div class="skeleton-text synopsis"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flip-card skeleton">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="skeleton-image"></div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="skeleton-text title"></div>
+                                <div class="skeleton-text details"></div>
+                                <div class="skeleton-text synopsis"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more skeletons as needed -->
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-airing" class="loading-indicator">Loading Currently Airing Anime...</div>
+            </div>
+        </section>
+        <br>
+        <br>
+        <!-- Top Anime Section -->
+        <section class="top-anime-section">
+            <div class="co3q6 c27r3 csm51 csya4 ccyhi">
+                <!-- Section Header -->
+                <div class="section-header">
+                    <h2 class="cc7gh ccqrz cx8zw c6df8 cfcmr ctwez cvc1j c4zau">Top Anime</h2>
+                    <p class="cmuyi cbgr1">Discover the most popular anime currently trending on MyAnimeList.</p>
+                </div>
+
+                <!-- Anime Cards Grid with Skeleton Loaders -->
+                <div class="anime-cards-grid" id="top-anime">
+                    <!-- Skeleton Cards (Placeholders) -->
+                    <div class="flip-card skeleton">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="skeleton-image"></div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="skeleton-text title"></div>
+                                <div class="skeleton-text details"></div>
+                                <div class="skeleton-text synopsis"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flip-card skeleton">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="skeleton-image"></div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="skeleton-text title"></div>
+                                <div class="skeleton-text details"></div>
+                                <div class="skeleton-text synopsis"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more skeletons as needed -->
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-top" class="loading-indicator">Loading Top Anime...</div>
+            </div>
+        </section>
+
+        <!-- Shared Helper Functions -->
+        <script>
+            // Shared helper functions
+            function renderAnimeCards(animeList, container, loadingIndicatorId) {
+                // Remove skeleton cards
+                const skeletons = container.querySelectorAll('.flip-card.skeleton');
+                skeletons.forEach(skeleton => skeleton.remove());
+
+                // Render actual anime cards
+                animeList.forEach(anime => {
+                    const card = document.createElement('div');
+                    card.className = 'flip-card';
+
+                    // Construct the URL to redirect to /anime/<id>
+                    const animeUrl = `/anime/${anime.mal_id}`; // Assuming 'mal_id' is the unique identifier
+
+                    card.innerHTML = `
+                        <a href="${animeUrl}" class="flip-card-link" aria-label="View details for ${sanitizeHTML(anime.title)}"></a>
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="${anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}" alt="${sanitizeHTML(anime.title)}" width="300" height="450" loading="lazy">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="anime-title">${sanitizeHTML(anime.title)}</div>
+                                <div class="anime-details">Score: ${anime.score || 'N/A'} | Episodes: ${anime.episodes || 'N/A'}</div>
+                                <div class="synopsis">${truncateSynopsis(anime.synopsis, 150)}</div>
+                                <div class="view-details">
+                                    <a href="${animeUrl}" target="_blank" rel="noopener noreferrer">View Details &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+                // Hide loading indicator
+                const loadingIndicator = document.getElementById(loadingIndicatorId);
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+
+            function truncateSynopsis(synopsis, maxLength) {
+                if (!synopsis) return 'No synopsis available.';
+                return synopsis.length > maxLength ? synopsis.substring(0, maxLength) + '...' : synopsis;
+            }
+
+            // Sanitize HTML to prevent XSS attacks
+            function sanitizeHTML(str) {
+                if (!str) return '';
+                return str.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        </script>
+
+        <!-- Currently Airing Anime Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                fetchAiringAnime();
+            });
+
+            function fetchAiringAnime() {
+                const animeCardsGrid = document.getElementById('airing-anime');
+
+                axios.get('/api/jikan/top/anime?filter=airing')
+                    .then(response => {
+                        const airingAnime = response.data.data;
+                        renderAnimeCards(airingAnime, animeCardsGrid, 'loading-airing');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Airing Anime:', error);
+                        const loadingIndicator = document.getElementById('loading-airing');
+                        loadingIndicator.textContent = 'Failed to load Currently Airing Anime. Please try again later.';
+                    });
+            }
+        </script>
+
+        <!-- Top Anime Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                fetchTopAnime();
+            });
+
+            function fetchTopAnime() {
+                const animeCardsGrid = document.getElementById('top-anime');
+
+                axios.get('/api/jikan/top/anime?filter=bypopularity')
+                    .then(response => {
+                        const topAnime = response.data.data;
+                        renderAnimeCards(topAnime, animeCardsGrid, 'loading-top');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Top Anime:', error);
+                        const loadingIndicator = document.getElementById('loading-top');
+                        loadingIndicator.textContent = 'Failed to load Top Anime. Please try again later.';
+                    });
+            }
+        </script>
+
+    </main>
+
+    <!-- Site Footer -->
+    {% include 'footer.html' %}
+
+</body>
+
+</html>
